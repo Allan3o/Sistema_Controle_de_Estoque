@@ -1,0 +1,14 @@
+{
+  "name": "sistema-controle-estoque",
+  "version": "1.0.0",
+  "description": "Sistema de Controle de Estoque - API REST",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "better-sqlite3": "^9.4.3"
+  }
+}
