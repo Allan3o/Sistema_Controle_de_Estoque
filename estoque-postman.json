@@ -1,0 +1,302 @@
+{
+  "info": {
+    "name": "Sistema de Controle de Estoque",
+    "description": "Coleção completa para testar a API de Controle de Estoque",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏠 Início",
+      "item": [
+        {
+          "name": "Documentação da API",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/",
+            "description": "Lista todas as rotas disponíveis na API"
+          }
+        }
+      ]
+    },
+    {
+      "name": "🛍️ Produtos",
+      "item": [
+        {
+          "name": "Cadastrar produto",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/produtos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Caneta Azul BIC\",\n  \"descricao\": \"Caneta esferográfica azul 1.0mm\",\n  \"preco\": 2.50,\n  \"quantidade_estoque\": 100,\n  \"estoque_minimo\": 10,\n  \"status\": \"ativo\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Cadastra um novo produto no sistema"
+          }
+        },
+        {
+          "name": "Cadastrar produto (erro - nome vazio)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/produtos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"\",\n  \"preco\": 5.00\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Testa validação: nome não pode ser vazio"
+          }
+        },
+        {
+          "name": "Cadastrar produto (erro - preço zero)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/produtos",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Produto Teste\",\n  \"preco\": 0\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Testa validação: preço deve ser maior que zero"
+          }
+        },
+        {
+          "name": "Listar todos os produtos",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/produtos",
+            "description": "Retorna todos os produtos cadastrados"
+          }
+        },
+        {
+          "name": "Listar produtos - filtrar por status ativo",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/produtos?status=ativo",
+              "host": ["{{base_url}}"],
+              "path": ["produtos"],
+              "query": [{ "key": "status", "value": "ativo" }]
+            },
+            "description": "Lista apenas produtos ativos"
+          }
+        },
+        {
+          "name": "Listar produtos - buscar por nome",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/produtos?nome=caneta",
+              "host": ["{{base_url}}"],
+              "path": ["produtos"],
+              "query": [{ "key": "nome", "value": "caneta" }]
+            },
+            "description": "Busca produtos pelo nome (parcial)"
+          }
+        },
+        {
+          "name": "Buscar produto por ID",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/produtos/1",
+            "description": "Retorna um produto específico pelo ID"
+          }
+        },
+        {
+          "name": "Buscar produto por ID (não existe)",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/produtos/999",
+            "description": "Testa erro 404 para produto inexistente"
+          }
+        },
+        {
+          "name": "Atualizar produto",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/produtos/1",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"nome\": \"Caneta Azul BIC Atualizada\",\n  \"preco\": 3.00,\n  \"estoque_minimo\": 15\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Atualiza dados de um produto (só envie os campos que deseja alterar)"
+          }
+        },
+        {
+          "name": "Inativar produto (soft delete)",
+          "request": {
+            "method": "DELETE",
+            "url": "{{base_url}}/produtos/1",
+            "description": "Inativa o produto sem apagar do banco (mantém histórico)"
+          }
+        },
+        {
+          "name": "Produtos com estoque baixo",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/produtos/estoque-baixo",
+            "description": "Lista produtos cuja quantidade <= estoque_minimo"
+          }
+        },
+        {
+          "name": "Resumo / Dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/produtos/resumo",
+            "description": "Retorna totais gerais: produtos, movimentações e valor em estoque"
+          }
+        }
+      ]
+    },
+    {
+      "name": "📊 Movimentações",
+      "item": [
+        {
+          "name": "Registrar entrada de estoque",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/movimentacoes/entrada",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produto_id\": 1,\n  \"quantidade\": 50,\n  \"observacao\": \"Compra do fornecedor XYZ\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Registra uma entrada e soma ao estoque do produto"
+          }
+        },
+        {
+          "name": "Registrar saída de estoque",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/movimentacoes/saida",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produto_id\": 1,\n  \"quantidade\": 10,\n  \"observacao\": \"Venda para cliente\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Registra uma saída e subtrai do estoque do produto"
+          }
+        },
+        {
+          "name": "Saída (erro - estoque insuficiente)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/movimentacoes/saida",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produto_id\": 1,\n  \"quantidade\": 99999,\n  \"observacao\": \"Tentativa de saída maior que o estoque\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Testa regra: não permite saída maior que o estoque disponível"
+          }
+        },
+        {
+          "name": "Saída (erro - produto inativo)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/movimentacoes/saida",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produto_id\": 1,\n  \"quantidade\": 5,\n  \"observacao\": \"Tentativa em produto inativo\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Testa regra: produto inativo não permite movimentação (inative o produto 1 antes)"
+          }
+        },
+        {
+          "name": "Entrada (erro - quantidade decimal)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": "{{base_url}}/movimentacoes/entrada",
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"produto_id\": 1,\n  \"quantidade\": 1.5,\n  \"observacao\": \"Quantidade inválida\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "description": "Testa validação: quantidade deve ser inteiro"
+          }
+        },
+        {
+          "name": "Listar todas as movimentações",
+          "request": {
+            "method": "GET",
+            "url": "{{base_url}}/movimentacoes",
+            "description": "Retorna o histórico completo de movimentações"
+          }
+        },
+        {
+          "name": "Movimentações por produto",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/movimentacoes?produto_id=1",
+              "host": ["{{base_url}}"],
+              "path": ["movimentacoes"],
+              "query": [{ "key": "produto_id", "value": "1" }]
+            },
+            "description": "Filtra movimentações de um produto específico"
+          }
+        },
+        {
+          "name": "Movimentações por tipo - entradas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/movimentacoes?tipo=entrada",
+              "host": ["{{base_url}}"],
+              "path": ["movimentacoes"],
+              "query": [{ "key": "tipo", "value": "entrada" }]
+            },
+            "description": "Lista apenas entradas de estoque"
+          }
+        },
+        {
+          "name": "Movimentações por tipo - saídas",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/movimentacoes?tipo=saida",
+              "host": ["{{base_url}}"],
+              "path": ["movimentacoes"],
+              "query": [{ "key": "tipo", "value": "saida" }]
+            },
+            "description": "Lista apenas saídas de estoque"
+          }
+        },
+        {
+          "name": "Movimentações com produto e tipo",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/movimentacoes?produto_id=1&tipo=entrada",
+              "host": ["{{base_url}}"],
+              "path": ["movimentacoes"],
+              "query": [
+                { "key": "produto_id", "value": "1" },
+                { "key": "tipo", "value": "entrada" }
+              ]
+            },
+            "description": "Combina filtro de produto e tipo"
+          }
+        }
+      ]
+    }
+  ]
+}
